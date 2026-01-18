@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Construction">
+    <title>Construction Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .login-screen, .project-selector {
+            display: none;
+            min-height: 100vh;
+            padding: 40px 20px;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-screen.active, .project-selector.active {
+            display: flex;
+        }
+        .login-box, .project-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .logo {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .login-box h2, .project-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a1a1a;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            background: white;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn-primary:active {
+            background: #0051d5;
+        }
+        .btn-secondary {
+            background: #34c759;
+        }
+        .btn-secondary:active {
+            background: #28a745;
+        }
+        .switch-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        .switch-link {
+            color: #007aff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .main-app {
+            display: none;
+            padding-bottom: 80px;
+        }
+        .main-app.active {
+            display: block;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .header-title {
+            flex: 1;
+        }
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .header-title p {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .header-icons {
+            display: flex;
+            gap: 10px;
+        }
+        .icon-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 18px;
+        }
+        .icon-btn:active {
+            background: #e0e0e0;
+        }
+        .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff3b30;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .role-toggle {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 3px;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .role-btn.active {
+            background: white;
+            color: #007aff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .summary-cards {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .summary-cards::-webkit-scrollbar {
+            display: none;
+        }
+        .summary-card {
+            min-width: 130px;
+            background: white;
+            border-radius: 15px;
+            padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .summary-card-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .summary-card-label {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .summary-card-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .tabs {
+            display: flex;
+            padding: 0 20px;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        .tab {
+            padding: 10px 18px;
+            background: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            white-space: nowrap;
+        }
+        .tab.active {
+            background: #007aff;
+            color: white;
+        }
+        .content {
+            padding: 0 20px 20px;
+        }
+        .add-form {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .add-form h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: background 0.2s;
+        }
+        .file-input-label:active {
+            background: #e0e0e0;
+        }
+        .file-input {
+            display: none;
+        }
+        .photo-preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .photo-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255,59,48,0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-in-progress {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        .status-approved {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        .item-details {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .detail-item {
+            flex: 1;
+            min-width: 80px;
+        }
+        .detail-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .item-meta {
+            font-size: 11px;
+            color: #999;
+            margin-top: 10px;
+        }
+        .item-photos {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+        .item-photos img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .update-section {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .update-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .btn-small {
+            padding: 8px 16px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .expense-amount {
+            font-size: 22px;
+            font-weight: 700;
+            color: #34c759;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 300px);
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .message-sent {
+            align-self: flex-end;
+            background: #007aff;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message-received {
+            align-self: flex-start;
+            background: #f0f0f0;
+            color: #1a1a1a;
+            border-bottom-left-radius: 4px;
+        }
+        .message-info {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            background: #f9f9f9;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 14px;
+            background: white;
+        }
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .project-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .project-item:active {
+            border-color: #007aff;
+            background: #f0f8ff;
+        }
+        .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .project-info {
+            font-size: 12px;
+            color: #666;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        .notification-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #007aff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+        }
+        .notification-item.read {
+            border-left-color: #e0e0e0;
+            opacity: 0.7;
+        }
+        .notification-message {
+            font-size: 14px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .notification-time {
+            font-size: 11px;
+            color: #999;
+        }
+        .notification-new {
+            display: inline-block;
+            background: #007aff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 8px;
+        }
+        @media (max-width: 375px) {
+            .header-title h1 {
+                font-size: 16px;
+            }
+            .summary-card {
+                min-width: 110px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen active" id="loginScreen">
+        <div class="login-box">
+            <div class="logo">&#128295;</div>
+            <h2 id="authTitle">Login</h2>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="authEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="authPassword" placeholder="••••••••">
+            </div>
+            <div class="form-group" id="nameGroup" style="display:none;">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" id="authName" placeholder="John Doe">
+            </div>
+            <div class="form-group" id="roleGroup" style="display:none;">
+                <label class="form-label">Role</label>
+                <select class="form-select" id="authRole">
+                    <option value="owner">Owner</option>
+                    <option value="contractor">Contractor</option>
+                </select>
+            </div>
+            <button class="btn-primary" id="authBtn" onclick="app.handleAuth()">Login</button>
+            <div class="switch-text">
+                <span id="switchText">Don't have an account?</span>
+                <span class="switch-link" id="switchLink" onclick="app.toggleAuthMode()">Sign Up</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Selector -->
+    <div class="project-selector" id="projectSelector">
+        <div class="project-box">
+            <h2>Select Project</h2>
+            <div id="projectList"></div>
+            <button class="btn-primary btn-secondary" onclick="app.showNewProjectForm()">+ New Project</button>
+            <div id="newProjectForm" style="display:none; margin-top:20px;">
+                <div class="form-group">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" class="form-input" id="newProjectName" placeholder="e.g., House Construction">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" id="newProjectLocation" placeholder="e.g., Karachi">
+                </div>
+                <button class="btn-primary" onclick="app.createProject()">Create Project</button>
+            </div>
+            <button class="btn-primary" style="margin-top:15px; background:#666;" onclick="app.logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="main-app" id="mainApp">
+        <div class="header">
+            <div class="header-top">
+                <div class="header-title">
+                    <h1 id="projectTitle">Construction Management</h1>
+                    <p id="projectSubtitle">Loading...</p>
+                </div>
+                <div class="header-icons">
+                    <button class="icon-btn" onclick="app.showTab('chat', event)">
+                        &#128172;
+                        <span class="badge" id="chatBadge" style="display:none;">0</span>
+                    </button>
+                    <button class="icon-btn" onclick="app.showTab('notifications', event)">
+                        &#128276;
+                        <span class="badge" id="notifBadge" style="display:none;">0</span>
+                    </button>
+                    <button class="icon-btn" onclick="app.changeProject()">&#128193;</button>
+                </div>
+            </div>
+            <div class="role-toggle" id="roleDisplay">
+                <button class="role-btn active" id="userRoleBtn">Owner</button>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-card-icon">&#128230;</div>
+                <div class="summary-card-label">Materials</div>
+                <div class="summary-card-value" id="totalMaterials">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-icon">&#128176;</div>
+                <div class="summary-card-label">Expenses</div>
+                <div class="summary-card-value" id="totalExpenses">Rs 0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-icon">&#9200;</div>
+                <div class="summary-card-label">Pending</div>
+                <div class="summary-card-value" id="pendingCount">0</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="app.showTab('materials', event)">Materials</button>
+            <button class="tab" onclick="app.showTab('expenses', event)">Expenses</button>
+            <button class="tab" onclick="app.showTab('chat', event)">Chat</button>
+        </div>
+
+        <div class="content" id="content"></div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal" id="imageModal" onclick="this.classList.remove('active')">
+        <img id="modalImage" src="" alt="Full size">
+    </div>
+
+    <script>
+        var app = {
+            authMode: 'login',
+            currentUser: null,
+            currentProject: null,
+            currentTab: 'materials',
+            materials: [],
+            expenses: [],
+            notifications: [],
+            messages: [],
+            projects: [],
+            tempPhotos: [],
+
+            init: function() {
+                this.checkAuth();
+            },
+
+            checkAuth: function() {
+                var user = localStorage.getItem('currentUser');
+                if (user) {
+                    this.currentUser = JSON.parse(user);
+                    this.loadProjects();
+                } else {
+                    document.getElementById('loginScreen').classList.add('active');
+                }
+            },
+
+            toggleAuthMode: function() {
+                this.authMode = this.authMode === 'login' ? 'signup' : 'login';
+                var isSignup = this.authMode === 'signup';
+                document.getElementById('authTitle').textContent = isSignup ? 'Sign Up' : 'Login';
+                document.getElementById('authBtn').textContent = isSignup ? 'Sign Up' : 'Login';
+                document.getElementById('nameGroup').style.display = isSignup ? 'block' : 'none';
+                document.getElementById('roleGroup').style.display = isSignup ? 'block' : 'none';
+                document.getElementById('switchText').textContent = isSignup ? 'Already have an account?' : "Don't have an account?";
+                document.getElementById('switchLink').textContent = isSignup ? 'Login' : 'Sign Up';
+            },
+
+            handleAuth: function() {
+                var email = document.getElementById('authEmail').value;
+                var password = document.getElementById('authPassword').value;
+                
+                if (!email || !password) {
+                    alert('Please fill all fields');
+                    return;
+                }
+
+                if (this.authMode === 'signup') {
+                    var name = document.getElementById('authName').value;
+                    var role = document.getElementById('authRole').value;
+                    
+                    if (!name) {
+                        alert('Please enter your name');
+                        return;
+                    }
+
+                    var users = JSON.parse(localStorage.getItem('users') || '{}');
+                    if (users[email]) {
+                        alert('Email already exists');
+                        return;
+                    }
+
+                    users[email] = {
+                        email: email,
+                        password: password,
+                        name: name,
+                        role: role,
+                        id: Date.now()
+                    };
+                    localStorage.setItem('users', JSON.stringify(users));
+                    this.currentUser = users[email];
+                    localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                    this.loadProjects();
+                } else {
+                    var users = JSON.parse(localStorage.getItem('users') || '{}');
+                    if (users[email] && users[email].password === password) {
+                        this.currentUser = users[email];
+                        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                        this.loadProjects();
+                    } else {
+                        alert('Invalid credentials');
+                    }
+                }
+            },
+
+            loadProjects: function() {
+                var allProjects = JSON.parse(localStorage.getItem('projects') || '{}');
+                this.projects = [];
+                for (var key in allProjects) {
+                    var proj = allProjects[key];
+                    if (proj.ownerId === this.currentUser.id || proj.contractorId === this.currentUser.id) {
+                        this.projects.push(proj);
+                    }
+                }
+
+                document.getElementById('loginScreen').classList.remove('active');
+                if (this.projects.length > 0) {
+                    this.showProjectSelector();
+                } else {
+                    this.showProjectSelector();
+                }
+            },
+
+            showProjectSelector: function() {
+                document.getElementById('projectSelector').classList.add('active');
+                document.getElementById('mainApp').classList.remove('active');
+                
+                var html = '';
+                for (var i = 0; i < this.projects.length; i++) {
+                    var p = this.projects[i];
+                    html += '<div class="project-item" onclick="app.selectProject(' + i + ')"><div class="project-name">' + p.name + '</div><div class="project-info">' + p.location + '</div></div>';
+                }
+                
+                if (this.projects.length === 0) {
+                    html = '<div class="empty-state"><div class="empty-state-icon">&#128193;</div><p>No projects yet. Create your first project!</p></div>';
+                }
+                
+                document.getElementById('projectList').innerHTML = html;
+            },
+
+            showNewProjectForm: function() {
+                var form = document.getElementById('newProjectForm');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            },
+
+            createProject: function() {
+                var name = document.getElementById('newProjectName').value;
+                var location = document.getElementById('newProjectLocation').value;
+                
+                if (!name) {
+                    alert('Please enter project name');
+                    return;
+                }
+
+                var project = {
+                    id: Date.now(),
+                    name: name,
+                    location: location || 'Not specified',
+                    ownerId: this.currentUser.role === 'owner' ? this.currentUser.id : null,
+                    contractorId: this.currentUser.role === 'contractor' ? this.currentUser.id : null,
+                    createdAt: new Date().toISOString()
+                };
+
+                var allProjects = JSON.parse(localStorage.getItem('projects') || '{}');
+                allProjects[project.id] = project;
+                localStorage.setItem('projects', JSON.stringify(allProjects));
+
+                this.projects.push(project);
+                this.selectProject(this.projects.length - 1);
+            },
+
+            selectProject: function(index) {
+                this.currentProject = this.projects[index];
+                localStorage.setItem('currentProject', JSON.stringify(this.currentProject));
+                
+                document.getElementById('projectSelector').classList.remove('active');
+                document.getElementById('mainApp').classList.add('active');
+                
+                document.getElementById('projectTitle').textContent = this.currentProject.name;
+                document.getElementById('projectSubtitle').textContent = this.currentProject.location;
+                document.getElementById('userRoleBtn').textContent = this.currentUser.name + ' (' + this.currentUser.role + ')';
+                
+                this.loadProjectData();
+                this.render();
+            },
+
+            changeProject: function() {
+                this.showProjectSelector();
+            },
+
+            loadProjectData: function() {
+                var projectKey = 'project_' + this.currentProject.id;
+                this.materials = JSON.parse(localStorage.getItem(projectKey + '_materials') || '[]');
+                this.expenses = JSON.parse(localStorage.getItem(projectKey + '_expenses') || '[]');
+                this.notifications = JSON.parse(localStorage.getItem(projectKey + '_notifications') || '[]');
+                this.messages = JSON.parse(localStorage.getItem(projectKey + '_messages') || '[]');
+            },
+
+            saveProjectData: function() {
+                var projectKey = 'project_' + this.currentProject.id;
+                localStorage.setItem(projectKey + '_materials', JSON.stringify(this.materials));
+                localStorage.setItem(projectKey + '_expenses', JSON.stringify(this.expenses));
+                localStorage.setItem(projectKey + '_notifications', JSON.stringify(this.notifications));
+                localStorage.setItem(projectKey + '_messages', JSON.stringify(this.messages));
+            },
+
+            logout: function() {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('currentProject');
+                this.currentUser = null;
+                this.currentProject = null;
+                document.getElementById('projectSelector').classList.remove('active');
+                document.getElementById('mainApp').classList.remove('active');
+                document.getElementById('loginScreen').classList.add('active');
+            },
+
+            showTab: function(tab, event) {
+                this.currentTab = tab;
+                var tabs = document.querySelectorAll('.tab');
+                for (var i = 0; i < tabs.length; i++) {
+                    tabs[i].classList.remove('active');
+                }
+                if (event && event.target.classList.contains('tab')) {
+                    event.target.classList.add('active');
+                }
+                this.render();
+            },
+
+            handlePhotoUpload: function(input) {
+                var files = input.files;
+                for (var i = 0; i < files.length; i++) {
+                    var reader = new FileReader();
+                    reader.onload = (function(file) {
+                        return function(e) {
+                            app.tempPhotos.push(e.target.result);
+                            app.renderPhotoPreview();
+                        };
+                    })(files[i]);
+                    reader.readAsDataURL(files[i]);
+                }
+            },
+
+            removePhoto: function(index) {
+                this.tempPhotos.splice(index, 1);
+                this.renderPhotoPreview();
+            },
+
+            renderPhotoPreview: function() {
+                var container = document.getElementById('photoPreview');
+                if (!container) return;
+                
+                var html = '';
+                for (var i = 0; i < this.tempPhotos.length; i++) {
+                    html += '<div class="photo-item"><img src="' + this.tempPhotos[i] + '"><button class="photo-remove" onclick="app.removePhoto(' + i + ')">×</button></div>';
+                }
+                container.innerHTML = html;
+            },
+
+            addMaterial: function() {
+                var name = document.getElementById('materialName').value;
+                var requiredQty = parseFloat(document.getElementById('materialQty').value);
+                var unit = document.getElementById('materialUnit').value;
+                
+                if (!name || !requiredQty) {
+                    alert('Please fill required fields');
+                    return;
+                }
+
+                var material = {
+                    id: Date.now(),
+                    name: name,
+                    requiredQty: requiredQty,
+                    usedQty: 0,
+                    unit: unit,
+                    status: 'pending',
+                    photos: this.tempPhotos.slice(),
+                    addedBy: this.currentUser.name,
+                    addedByRole: this.currentUser.role,
+                    addedAt: new Date().toISOString()
+                };
+
+                this.materials.push(material);
+                
+                var notif = {
+                    id: Date.now(),
+                    message: 'New material requested: ' + name + ' (' + requiredQty + ' ' + unit + ')',
+                    materialId: material.id,
+                    read: false,
+                    timestamp: new Date().toISOString()
+                };
+                this.notifications.push(notif);
+
+                this.saveProjectData();
+                this.tempPhotos = [];
+                document.getElementById('materialName').value = '';
+                document.getElementById('materialQty').value = '';
+                this.render();
+            },
+
+            updateMaterialUsage: function(id, usedQty) {
+                for (var i = 0; i < this.materials.length; i++) {
+                    if (this.materials[i].id === id) {
+                        this.materials[i].usedQty = parseFloat(usedQty);
+                        this.materials[i].status = 'in-progress';
+                        break;
+                    }
+                }
+                this.saveProjectData();
+                this.render();
+            },
+
+            approveMaterial: function(id) {
+                for (var i = 0; i < this.materials.length; i++) {
+                    if (this.materials[i].id === id) {
+                        this.materials[i].status = 'approved';
+                        break;
+                    }
+                }
+                this.saveProjectData();
+                this.render();
+            },
+
+            addExpense: function() {
+                var description = document.getElementById('expenseDesc').value;
+                var amount = parseFloat(document.getElementById('expenseAmount').value);
+                var category = document.getElementById('expenseCategory').value;
+                
+                if (!description || !amount) {
+                    alert('Please fill required fields');
+                    return;
+                }
+
+                var expense = {
+                    id: Date.now(),
+                    description: description,
+                    amount: amount,
+                    category: category,
+                    photos: this.tempPhotos.slice(),
+                    addedBy: this.currentUser.name,
+                    addedAt: new Date().toISOString()
+                };
+
+                this.expenses.push(expense);
+                this.saveProjectData();
+                this.tempPhotos = [];
+                document.getElementById('expenseDesc').value = '';
+                document.getElementById('expenseAmount').value = '';
+                this.render();
+            },
+
+            sendMessage: function() {
+                var input = document.getElementById('chatInput');
+                var text = input.value.trim();
+                
+                if (!text) return;
+
+                var message = {
+                    id: Date.now(),
+                    text: text,
+                    sender: this.currentUser.name,
+                    senderRole: this.currentUser.role,
+                    timestamp: new Date().toISOString()
+                };
+
+                this.messages.push(message);
+                this.saveProjectData();
+                input.value = '';
+                this.renderChat();
+                
+                setTimeout(function() {
+                    var chatDiv = document.getElementById('chatMessages');
+                    if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
+                }, 100);
+            },
+
+            viewImage: function(src) {
+                document.getElementById('modalImage').src = src;
+                document.getElementById('imageModal').classList.add('active');
+            },
+
+            markNotificationRead: function(id) {
+                for (var i = 0; i < this.notifications.length; i++) {
+                    if (this.notifications[i].id === id) {
+                        this.notifications[i].read = true;
+                        break;
+                    }
+                }
+                this.saveProjectData();
+                this.render();
+            },
+
+            render: function() {
+                this.updateSummary();
+                
+                if (this.currentTab === 'materials') {
+                    this.renderMaterials();
+                } else if (this.currentTab === 'expenses') {
+                    this.renderExpenses();
+                } else if (this.currentTab === 'chat') {
+                    this.renderChat();
+                } else if (this.currentTab === 'notifications') {
+                    this.renderNotifications();
+                }
+            },
+
+            updateSummary: function() {
+                document.getElementById('totalMaterials').textContent = this.materials.length;
+                var totalExp = 0;
+                for (var i = 0; i < this.expenses.length; i++) {
+                    totalExp += this.expenses[i].amount;
+                }
+                document.getElementById('totalExpenses').textContent = 'Rs ' + totalExp.toLocaleString();
+                var pending = 0;
+                for (var i = 0; i < this.materials.length; i++) {
+                    if (this.materials[i].status === 'pending') pending++;
+                }
+                document.getElementById('pendingCount').textContent = pending;
+                
+                var unreadCount = 0;
+                for (var i = 0; i < this.notifications.length; i++) {
+                    if (!this.notifications[i].read) unreadCount++;
+                }
+                var badge = document.getElementById('notifBadge');
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                var unreadMsg = 0;
+                for (var i = 0; i < this.messages.length; i++) {
+                    if (this.messages[i].senderRole !== this.currentUser.role) {
+                        unreadMsg++;
+                    }
+                }
+                var chatBadge = document.getElementById('chatBadge');
+                if (unreadMsg > 0 && this.currentTab !== 'chat') {
+                    chatBadge.textContent = unreadMsg;
+                    chatBadge.style.display = 'block';
+                } else {
+                    chatBadge.style.display = 'none';
+                }
+            },
+
+            renderMaterials: function() {
+                var content = document.getElementById('content');
+                var html = '<div class="add-form"><h3>Add New Material</h3><div class="form-group"><input type="text" class="form-input" id="materialName" placeholder="Material name"></div><div class="form-group"><input type="number" class="form-input" id="materialQty" placeholder="Required quantity"></div><div class="form-group"><select class="form-select" id="materialUnit"><option value="kg">kg</option><option value="ton">ton</option><option value="m3">m3</option><option value="pcs">pcs</option><option value="bags">bags</option></select></div><div class="form-group"><div class="file-input-wrapper"><label class="file-input-label" for="materialPhoto">&#128247; Add Photos<input type="file" id="materialPhoto" class="file-input" accept="image/*" multiple onchange="app.handlePhotoUpload(this)"></label></div><div class="photo-preview" id="photoPreview"></div></div><button class="btn-primary" onclick="app.addMaterial()">Add Material</button></div><div class="item-list">';
+                
+                if (this.materials.length === 0) {
+                    html += '<div class="empty-state"><div class="empty-state-icon">&#128230;</div><p>No materials added yet</p></div>';
+                } else {
+                    for (var i = 0; i < this.materials.length; i++) {
+                        var m = this.materials[i];
+                        var statusClass = m.status === 'approved' ? 'status-approved' : m.status === 'in-progress' ? 'status-in-progress' : 'status-pending';
+                        var dateStr = new Date(m.addedAt).toLocaleDateString();
+                        html += '<div class="item-card"><div class="item-header"><div class="item-title">' + m.name + '</div><div class="status-badge ' + statusClass + '">' + m.status + '</div></div><div class="item-details"><div class="detail-item"><div class="detail-label">Required</div><div class="detail-value">' + m.requiredQty + ' ' + m.unit + '</div></div><div class="detail-item"><div class="detail-label">Used</div><div class="detail-value">' + m.usedQty + ' ' + m.unit + '</div></div><div class="detail-item"><div class="detail-label">Remaining</div><div class="detail-value">' + (m.requiredQty - m.usedQty) + ' ' + m.unit + '</div></div></div>';
+                        
+                        if (m.photos && m.photos.length > 0) {
+                            html += '<div class="item-photos">';
+                            for (var j = 0; j < m.photos.length; j++) {
+                                html += '<img src="' + m.photos[j] + '" onclick="app.viewImage(\'' + m.photos[j] + '\')">';
+                            }
+                            html += '</div>';
+                        }
+                        
+                        html += '<div class="item-meta">Added by ' + m.addedBy + ' on ' + dateStr + '</div>';
+                        
+                        if (this.currentUser.role === 'contractor') {
+                            html += '<div class="update-section"><input type="number" class="update-input" id="update-' + m.id + '" placeholder="Update used qty"><button class="btn-small" onclick="app.updateMaterialUsage(' + m.id + ', document.getElementById(\'update-' + m.id + '\').value)">Update</button></div>';
+                        }
+                        
+                        if (this.currentUser.role === 'owner' && m.status === 'pending') {
+                            html += '<button class="btn-primary btn-secondary" style="margin-top:12px;" onclick="app.approveMaterial(' + m.id + ')">Approve</button>';
+                        }
+                        
+                        html += '</div>';
+                    }
+                }
+                html += '</div>';
+                content.innerHTML = html;
+                this.renderPhotoPreview();
+            },
+
+            renderExpenses: function() {
+                var content = document.getElementById('content');
+                var html = '<div class="add-form"><h3>Log New Expense</h3><div class="form-group"><input type="text" class="form-input" id="expenseDesc" placeholder="Description"></div><div class="form-group"><input type="number" class="form-input" id="expenseAmount" placeholder="Amount (Rs)"></div><div class="form-group"><select class="form-select" id="expenseCategory"><option value="materials">Materials</option><option value="labor">Labor</option><option value="equipment">Equipment</option><option value="transport">Transport</option><option value="other">Other</option></select></div><div class="form-group"><div class="file-input-wrapper"><label class="file-input-label" for="expensePhoto">&#128247; Add Photos<input type="file" id="expensePhoto" class="file-input" accept="image/*" multiple onchange="app.handlePhotoUpload(this)"></label></div><div class="photo-preview" id="photoPreview"></div></div><button class="btn-primary btn-secondary" onclick="app.addExpense()">Add Expense</button></div><div class="item-list">';
+                
+                if (this.expenses.length === 0) {
+                    html += '<div class="empty-state"><div class="empty-state-icon">&#128176;</div><p>No expenses logged yet</p></div>';
+                } else {
+                    for (var i = 0; i < this.expenses.length; i++) {
+                        var e = this.expenses[i];
+                        var dateStr = new Date(e.addedAt).toLocaleDateString();
+                        html += '<div class="item-card"><div class="item-header"><div class="item-title">' + e.description + '</div><div class="expense-amount">Rs ' + e.amount.toLocaleString() + '</div></div>';
+                        
+                        if (e.photos && e.photos.length > 0) {
+                            html += '<div class="item-photos">';
+                            for (var j = 0; j < e.photos.length; j++) {
+                                html += '<img src="' + e.photos[j] + '" onclick="app.viewImage(\'' + e.photos[j] + '\')">';
+                            }
+                            html += '</div>';
+                        }
+                        
+                        html += '<div style="margin-top:10px;"><span class="category-badge">' + e.category + '</span><span style="font-size:12px;color:#999;">Added by ' + e.addedBy + '</span><span style="font-size:12px;color:#999;margin-left:10px;">' + dateStr + '</span></div></div>';
+                    }
+                }
+                html += '</div>';
+                content.innerHTML = html;
+                this.renderPhotoPreview();
+            },
+
+            renderChat: function() {
+                var content = document.getElementById('content');
+                var html = '<div class="chat-container"><div class="chat-messages" id="chatMessages">';
+                
+                if (this.messages.length === 0) {
+                    html += '<div class="empty-state"><div class="empty-state-icon">&#128172;</div><p>No messages yet. Start the conversation!</p></div>';
+                } else {
+                    for (var i = 0; i < this.messages.length; i++) {
+                        var msg = this.messages[i];
+                        var isSent = msg.senderRole === this.currentUser.role;
+                        var msgClass = isSent ? 'message-sent' : 'message-received';
+                        var time = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        html += '<div class="message ' + msgClass + '">' + msg.text + '<div class="message-info">' + msg.sender + ' • ' + time + '</div></div>';
+                    }
+                }
+                
+                html += '</div><div class="chat-input-area"><input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key===\'Enter\') app.sendMessage()"><button class="send-btn" onclick="app.sendMessage()">&#10148;</button></div></div>';
+                content.innerHTML = html;
+                
+                setTimeout(function() {
+                    var chatDiv = document.getElementById('chatMessages');
+                    if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
+                }, 100);
+            },
+
+            renderNotifications: function() {
+                var content = document.getElementById('content');
+                var html = '<div class="item-list">';
+                
+                if (this.notifications.length === 0) {
+                    html += '<div class="empty-state"><div class="empty-state-icon">&#128276;</div><p>No notifications</p></div>';
+                } else {
+                    for (var i = 0; i < this.notifications.length; i++) {
+                        var n = this.notifications[i];
+                        var dateStr = new Date(n.timestamp).toLocaleString();
+                        html += '<div class="notification-item ' + (n.read ? 'read' : '') + '" onclick="app.markNotificationRead(' + n.id + ')"><div class="notification-message">' + n.message;
+                        if (!n.read) {
+                            html += '<span class="notification-new">NEW</span>';
+                        }
+                        html += '</div><div class="notification-time">' + dateStr + '</div></div>';
+                    }
+                }
+                html += '</div>';
+                content.innerHTML = html;
+            }
+        };
+
+        app.init();
